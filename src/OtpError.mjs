@@ -1,35 +1,38 @@
-export default class OtpError {
-  constructor (err) {
+const DEFAULT_ERROR_MSG = 'Api Crypto Error'
+const DEFAULT_ERROR_STATUS_CODE = 500
+const DEFAULT_ERROR_CODE = 'API_CRYPTO_ERROR'
+
+export default class OtpError extends Error {
+  constructor (e = {}, eMap) {
+    if (e._isCustomError && !eMap) { return e }
+
+    super()
+
+    const { message, statusCode, errorCode } = eMap || {}
     const {
-      _isOtpError = false,
-      message = 'Unhandled Error',
-      statusCode = 500,
-      code = 'OTP_UNHANDLED_ERROR',
-      error
-    } = err
+      message: eMessage,
+      msg: eMsg,
+      statusCode: eStatusCode,
+      errorCode: eErrorCode,
+      code: eCode
+    } = e
 
-    if (_isOtpError) { return err }
+    const {
+      npm_package_name: pkgName = '',
+      npm_package_version: pkgVersion = ''
+    } = process.env
+    const service = `${pkgName}@${pkgVersion}`
 
+    this._isCustomError = true
     this._isOtpError = true
-    this.message = message
-    this.statusCode = statusCode
-    this.code = code
-    this.error = error
-  }
-
-  toJSON () {
-    const { message, statusCode, error } = this
-    return { message, statusCode, error }
-  }
-
-  static buildFromErrorMap (errorMap, error) {
-    if (error._isOtpError) { return error }
-
-    const { message, statusCode, code } = errorMap
-    const err = (error.toJSON && error.toJSON()) || error
-
-    const errorAttrs = { message, statusCode, code, error: err }
-    const otpError = new OtpError(errorAttrs)
-    return otpError
+    this.service = service
+    this.message = message || eMessage || eMsg || DEFAULT_ERROR_MSG
+    this.statusCode = statusCode || eStatusCode || DEFAULT_ERROR_STATUS_CODE
+    this.errorCode = errorCode || eErrorCode || eCode || DEFAULT_ERROR_CODE
+    this.error = {
+      ...e,
+      message: eMessage || this.message,
+      errorCode: eErrorCode || this.errorCode
+    }
   }
 }

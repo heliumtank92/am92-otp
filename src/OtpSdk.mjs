@@ -11,8 +11,13 @@ export default class OtpSdk {
 
     this.CONFIG = CONFIG
     this.#Hotp = new Hotp(REDIS_CONFIG, OTP_CONFIG)
-    this.initialize = this.#Hotp.initialize
+
+    this.initialize = this.initialize.bind(this)
     this.generateHotp = this.#Hotp.generate
     this.validateHotp = this.#Hotp.validate
+  }
+
+  async initialize () {
+    await this.#Hotp.initialize()
   }
 }
