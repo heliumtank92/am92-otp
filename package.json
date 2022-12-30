@@ -27,7 +27,7 @@
     ".": "./src/OtpSdk.mjs"
   },
   "dependencies": {
-    "@am92/redis": "^1.0.3",
+    "@am92/redis": "^1.0.4",
     "lodash": "^4.17.21"
   },
   "keywords": []
