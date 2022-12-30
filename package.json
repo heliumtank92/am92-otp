@@ -1,6 +1,6 @@
 {
   "name": "@am92/otp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HOTP Authentication Module",
   "type": "module",
   "main": "src/OtpSdk.mjs",
@@ -27,7 +27,7 @@
     ".": "./src/OtpSdk.mjs"
   },
   "dependencies": {
-    "@am92/redis": "^1.0.0",
+    "@am92/redis": "^1.0.1",
     "lodash": "^4.17.21"
   },
   "keywords": []
