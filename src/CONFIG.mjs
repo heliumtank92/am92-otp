@@ -1,11 +1,11 @@
 const {
-  OTP_ENABLED = 'false',
+  OTP_DEDICATED_REDIS = 'false',
   OTP_REDIS_AUTH_ENABLED = 'false',
   OTP_REDIS_CHECK_SERVER_IDENTITY = 'false',
-  OTP_REDIS_HOST,
-  OTP_REDIS_PORT,
-  OTP_REDIS_KEY_PREFIX,
-  OTP_REDIS_AUTH,
+  OTP_REDIS_HOST = '',
+  OTP_REDIS_PORT = '',
+  OTP_REDIS_KEY_PREFIX = '',
+  OTP_REDIS_AUTH = '',
 
   OTP_LENGTH = '6',
   OTP_EXPIRY_IN_SECS = '300',
@@ -16,7 +16,7 @@ const {
   OTP_VAL_LIMIT = '3'
 } = process.env
 
-const ENABLED = OTP_ENABLED === 'true'
+const DEDICATED_REDIS = OTP_DEDICATED_REDIS === 'true'
 let REDIS_CONNECTION_CONFIG
 
 const REQUIRED_CONFIG = []
@@ -32,10 +32,9 @@ const INT_CONFIGS = {
   OTP_VAL_LIMIT
 }
 
-// Handle Missing Configs
-if (ENABLED) {
-  REQUIRED_CONFIG.push(OTP_REDIS_HOST)
-  REQUIRED_CONFIG.push(OTP_REDIS_PORT)
+if (DEDICATED_REDIS) {
+  REQUIRED_CONFIG.push('OTP_REDIS_HOST')
+  REQUIRED_CONFIG.push('OTP_REDIS_PORT')
 
   const AUTH_ENABLED = OTP_REDIS_AUTH_ENABLED === 'true'
   const CHECK_SERVER_IDENTITY = OTP_REDIS_CHECK_SERVER_IDENTITY === 'true'
@@ -44,7 +43,6 @@ if (ENABLED) {
     REQUIRED_CONFIG.push('OTP_REDIS_AUTH')
   }
 
-  // Terminate Server if any OTP Configuration is missing
   REQUIRED_CONFIG.forEach(function (key) {
     if (!process.env[key]) {
       MISSING_CONFIGS.push(key)
@@ -56,7 +54,6 @@ if (ENABLED) {
     process.exit(1)
   }
 
-  // Redis Configuration to required establish connection
   REDIS_CONNECTION_CONFIG = {
     host: OTP_REDIS_HOST,
     port: OTP_REDIS_PORT
@@ -71,7 +68,6 @@ if (ENABLED) {
   }
 }
 
-// Handle Invalid Configs
 Object.keys(INT_CONFIGS).forEach(key => {
   const value = INT_CONFIGS[key]
   INT_CONFIGS[key] = parseInt(value, 10)
@@ -87,7 +83,7 @@ if (INVALID_CONFIGS.length) {
 }
 
 const CONFIG = {
-  ENABLED,
+  DEDICATED_REDIS,
 
   REDIS_CONFIG: {
     CONNECTION_CONFIG: REDIS_CONNECTION_CONFIG,

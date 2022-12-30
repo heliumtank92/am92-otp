@@ -9,15 +9,10 @@ export default class OtpSdk {
     const CONFIG = _.merge(DEFAULT_CONFIG, config)
     const { REDIS_CONFIG = {}, OTP_CONFIG = {} } = CONFIG
 
+    this.CONFIG = CONFIG
     this.#Hotp = new Hotp(REDIS_CONFIG, OTP_CONFIG)
-    this.initialize = this.initialize.bind(this)
+    this.initialize = this.#Hotp.initialize
     this.generateHotp = this.#Hotp.generate
     this.validateHotp = this.#Hotp.validate
-  }
-
-  async initialize () {
-    console.log('[Info] Initializing OtpSdk...')
-    this.#Hotp.initialize()
-    console.log('[Info] OtpSdk Initialized!')
   }
 }
