@@ -1,12 +1,11 @@
 {
   "name": "@am92/otp",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "HOTP Authentication Module",
   "type": "module",
   "main": "src/OtpSdk.mjs",
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": "git@github.com:heliumtank92/am92-otp.git",
   "homepage": "https://github.com/heliumtank92/am92-otp#readme",
@@ -27,8 +26,17 @@
     ".": "./src/OtpSdk.mjs"
   },
   "dependencies": {
-    "@am92/redis": "^1.0.4",
+    "@am92/redis": "^1.0.6",
     "lodash": "^4.17.21"
   },
-  "keywords": []
+  "devDependencies": {
+    "@babel/core": "^7.20.7",
+    "@babel/preset-env": "^7.20.2",
+    "babel-jest": "^29.3.1",
+    "jest": "^29.3.1"
+  },
+  "keywords": [
+    "otp",
+    "hotp"
+  ]
 }
