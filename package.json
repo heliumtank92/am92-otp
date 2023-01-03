@@ -1,6 +1,6 @@
 {
   "name": "@am92/otp",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "HOTP Authentication Module",
   "type": "module",
   "main": "dist/OtpSdk.js",
