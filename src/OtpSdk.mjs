@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import DEFAULT_CONFIG from './CONFIG.mjs'
+import DEFAULT_CONFIG, { SERVICE } from './CONFIG.mjs'
 import Hotp from './lib/Hotp.mjs'
 
 export default class OtpSdk {
@@ -18,6 +18,8 @@ export default class OtpSdk {
   }
 
   async initialize () {
+    console.trace(`[${SERVICE} OtpSdk] Initialising...`)
     await this.#Hotp.initialize()
+    console.info(`[${SERVICE} OtpSdk] Initialised`)
   }
 }

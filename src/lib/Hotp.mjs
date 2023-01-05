@@ -3,6 +3,8 @@ import _ from 'lodash'
 import Redis from './Redis.mjs'
 import OtpError from '../OtpError.mjs'
 import {
+  HOTP_NOT_INITIALIZED_ERROR,
+
   OTP_REGEN_ON_HALT_ERROR,
   OTP_GEN_EXCEEDED_ERROR,
   OTP_REGEN_EXCEEDED_ERROR,
@@ -11,11 +13,18 @@ import {
 } from '../constants/ERRORS.mjs'
 
 export default class Hotp extends Redis {
+  #initialized = false
   constructor (REDIS_CONFIG, OTP_CONFIG) {
     super(REDIS_CONFIG, OTP_CONFIG)
 
+    this.initialize = this.initialize.bind(this)
     this.generate = this.generate.bind(this)
     this.validate = this.validate.bind(this)
+  }
+
+  async initialize () {
+    await super.initialize()
+    this.#initialized = true
   }
 
   async generate (attrs = {}) {
@@ -61,6 +70,10 @@ export default class Hotp extends Redis {
   }
 
   async #shouldGenerate (attrs = {}) {
+    if (!this.#initialized) {
+      throw new OtpError(attrs, HOTP_NOT_INITIALIZED_ERROR)
+    }
+
     const { OTP_CONFIG } = this
     const { OTP_GEN_LIMIT, OTP_REGEN_LIMIT } = OTP_CONFIG
     const { ReferenceId, Uids } = attrs
@@ -123,6 +136,10 @@ export default class Hotp extends Redis {
   }
 
   async #shouldValidate (attrs = {}) {
+    if (!this.#initialized) {
+      throw new OtpError(attrs, HOTP_NOT_INITIALIZED_ERROR)
+    }
+
     const { OTP_CONFIG } = this
     const { OTP_VAL_LIMIT } = OTP_CONFIG
     const { ReferenceId } = attrs
