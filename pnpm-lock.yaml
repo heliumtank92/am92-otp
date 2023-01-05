@@ -1,17 +1,17 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@am92/redis': ^1.0.1
+  '@am92/redis': ^1.0.9
   lodash: ^4.17.21
 
 dependencies:
-  '@am92/redis': 1.0.1
+  '@am92/redis': 1.0.9
   lodash: 4.17.21
 
 packages:
 
-  /@am92/redis/1.0.1:
-    resolution: {integrity: sha512-tHI+A3JbLT4yc7BZCpYdZm3Shaa0aildv2pSMj2jmkOlTYU+wHK0ou2xpesuR+i6k4GGN+a3DjybAzQo2LQRGA==}
+  /@am92/redis/1.0.9:
+    resolution: {integrity: sha512-6ZuQ4mSuTWMso7PbCrqrbzNd4yptcPj7IvEbVMDAbpImbdDMi3f1D1H4TpatEFqo8NOmmLFVrqkNbGTlDbaz4A==}
     requiresBuild: true
     dependencies:
       redis: 4.5.1
