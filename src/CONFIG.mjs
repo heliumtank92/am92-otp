@@ -1,4 +1,7 @@
 const {
+  npm_package_name: pkgName = '',
+  npm_package_version: pkgVersion = '',
+
   OTP_DEDICATED_REDIS = 'false',
   OTP_REDIS_AUTH_ENABLED = 'false',
   OTP_REDIS_CHECK_SERVER_IDENTITY = 'false',
@@ -16,6 +19,8 @@ const {
   OTP_VAL_LIMIT = '3'
 } = process.env
 
+const SERVICE = `${pkgName}@${pkgVersion}`
+
 const DEDICATED_REDIS = OTP_DEDICATED_REDIS === 'true'
 let REDIS_CONNECTION_CONFIG
 
@@ -31,6 +36,7 @@ const INT_CONFIGS = {
   OTP_REGEN_LIMIT,
   OTP_VAL_LIMIT
 }
+const INVALID_INT_CONFIG = {}
 
 if (DEDICATED_REDIS) {
   REQUIRED_CONFIG.push('OTP_REDIS_HOST')
@@ -50,7 +56,8 @@ if (DEDICATED_REDIS) {
   })
 
   if (MISSING_CONFIGS.length) {
-    console.error(`Missing OTP Configs: ${MISSING_CONFIGS}`)
+    const logFunc = console.fatal || console.error
+    logFunc(`[${SERVICE} Otp] Otp Configs Missing: ${MISSING_CONFIGS.join(', ')}`)
     process.exit(1)
   }
 
@@ -73,11 +80,13 @@ Object.keys(INT_CONFIGS).forEach(key => {
   INT_CONFIGS[key] = parseInt(value, 10)
 
   if (isNaN(INT_CONFIGS[key])) {
-    INVALID_CONFIGS.push(`Invalid OTP Config ${key}. Must be a valid Number: ${value}`)
+    INVALID_INT_CONFIG[key] = value
   }
 })
 
-if (INVALID_CONFIGS.length) {
+if (Object.keys(INVALID_INT_CONFIG).length) {
+  const logFunc = console.fatal || console.error
+  logFunc(`[${SERVICE} Otp] Invalid Otp Integer Configs:`, INVALID_INT_CONFIG)
   INVALID_CONFIGS.map(console.error)
   process.exit(1)
 }
@@ -102,11 +111,5 @@ const CONFIG = {
 }
 
 export default CONFIG
-
-const {
-  npm_package_name: pkgName = '',
-  npm_package_version: pkgVersion = ''
-} = process.env
-const SERVICE = `${pkgName}@${pkgVersion}`
 
 export { SERVICE }
