@@ -26,7 +26,6 @@ let REDIS_CONNECTION_CONFIG
 
 const REQUIRED_CONFIG = []
 const MISSING_CONFIGS = []
-const INVALID_CONFIGS = []
 const INT_CONFIGS = {
   OTP_LENGTH,
   OTP_EXPIRY_IN_SECS,
@@ -87,7 +86,6 @@ Object.keys(INT_CONFIGS).forEach(key => {
 if (Object.keys(INVALID_INT_CONFIG).length) {
   const logFunc = console.fatal || console.error
   logFunc(`[${SERVICE} Otp] Invalid Otp Integer Configs:`, INVALID_INT_CONFIG)
-  INVALID_CONFIGS.map(console.error)
   process.exit(1)
 }
 
