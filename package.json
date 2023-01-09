@@ -1,6 +1,6 @@
 {
   "name": "@am92/otp",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "HOTP Authentication Module",
   "type": "module",
   "main": "src/OtpSdk.mjs",
