@@ -1,4 +1,7 @@
 const {
+  npm_package_name: pkgName = '',
+  npm_package_version: pkgVersion = '',
+
   OTP_DEDICATED_REDIS = 'false',
   OTP_REDIS_AUTH_ENABLED = 'false',
   OTP_REDIS_CHECK_SERVER_IDENTITY = 'false',
@@ -16,12 +19,13 @@ const {
   OTP_VAL_LIMIT = '3'
 } = process.env
 
+const SERVICE = `${pkgName}@${pkgVersion}`
+
 const DEDICATED_REDIS = OTP_DEDICATED_REDIS === 'true'
 let REDIS_CONNECTION_CONFIG
 
 const REQUIRED_CONFIG = []
 const MISSING_CONFIGS = []
-const INVALID_CONFIGS = []
 const INT_CONFIGS = {
   OTP_LENGTH,
   OTP_EXPIRY_IN_SECS,
@@ -31,6 +35,7 @@ const INT_CONFIGS = {
   OTP_REGEN_LIMIT,
   OTP_VAL_LIMIT
 }
+const INVALID_INT_CONFIG = {}
 
 if (DEDICATED_REDIS) {
   REQUIRED_CONFIG.push('OTP_REDIS_HOST')
@@ -50,7 +55,8 @@ if (DEDICATED_REDIS) {
   })
 
   if (MISSING_CONFIGS.length) {
-    console.error(`Missing OTP Configs: ${MISSING_CONFIGS}`)
+    const logFunc = console.fatal || console.error
+    logFunc(`[${SERVICE} Otp] Otp Configs Missing: ${MISSING_CONFIGS.join(', ')}`)
     process.exit(1)
   }
 
@@ -66,6 +72,8 @@ if (DEDICATED_REDIS) {
   if (CHECK_SERVER_IDENTITY) {
     REDIS_CONNECTION_CONFIG.tls = { checkServerIdentity: () => undefined }
   }
+} else {
+  console.warn(`[${SERVICE} Otp] Otp Config OTP_DEDICATED_REDIS set to false. Ensure REDIS_ENABLED is set to true`)
 }
 
 Object.keys(INT_CONFIGS).forEach(key => {
@@ -73,12 +81,13 @@ Object.keys(INT_CONFIGS).forEach(key => {
   INT_CONFIGS[key] = parseInt(value, 10)
 
   if (isNaN(INT_CONFIGS[key])) {
-    INVALID_CONFIGS.push(`Invalid OTP Config ${key}. Must be a valid Number: ${value}`)
+    INVALID_INT_CONFIG[key] = value
   }
 })
 
-if (INVALID_CONFIGS.length) {
-  INVALID_CONFIGS.map(console.error)
+if (Object.keys(INVALID_INT_CONFIG).length) {
+  const logFunc = console.fatal || console.error
+  logFunc(`[${SERVICE} Otp] Invalid Otp Integer Configs:`, INVALID_INT_CONFIG)
   process.exit(1)
 }
 
@@ -102,11 +111,5 @@ const CONFIG = {
 }
 
 export default CONFIG
-
-const {
-  npm_package_name: pkgName = '',
-  npm_package_version: pkgVersion = ''
-} = process.env
-const SERVICE = `${pkgName}@${pkgVersion}`
 
 export { SERVICE }
