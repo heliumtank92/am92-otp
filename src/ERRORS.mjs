@@ -4,6 +4,12 @@ const HOTP_NOT_INITIALIZED_ERROR = {
   errorCode: 'OtpError::HOTP_NOT_INITIALIZED'
 }
 
+const INVALID_REGEN_REF_ID_ERROR = {
+  message: 'Invalid Regeneration Reference Id',
+  statusCode: 400,
+  errorCode: 'OtpError::INVALID_REGEN_REF_ID'
+}
+
 const OTP_EXPIRED_ERROR = {
   message: 'Otp Expired',
   statusCode: 400,
@@ -23,7 +29,7 @@ const OTP_GEN_EXCEEDED_ERROR = {
 }
 
 const OTP_REGEN_EXCEEDED_ERROR = {
-  message: 'Otp ReGeneration Exceeded',
+  message: 'Otp Regeneration Exceeded',
   statusCode: 400,
   errorCode: 'OtpError::OTP_REGEN_EXCEEDED'
 }
@@ -36,7 +42,7 @@ const OTP_VAL_EXCEEDED_ERROR = {
 
 export {
   HOTP_NOT_INITIALIZED_ERROR,
-
+  INVALID_REGEN_REF_ID_ERROR,
   OTP_EXPIRED_ERROR,
   OTP_REGEN_ON_HALT_ERROR,
   OTP_GEN_EXCEEDED_ERROR,

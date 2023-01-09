@@ -72,6 +72,8 @@ if (DEDICATED_REDIS) {
   if (CHECK_SERVER_IDENTITY) {
     REDIS_CONNECTION_CONFIG.tls = { checkServerIdentity: () => undefined }
   }
+} else {
+  console.warn(`[${SERVICE} Otp] Otp Config OTP_DEDICATED_REDIS set to false. Ensure REDIS_ENABLED is set to true`)
 }
 
 Object.keys(INT_CONFIGS).forEach(key => {

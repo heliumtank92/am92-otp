@@ -4,13 +4,13 @@ import Redis from './Redis.mjs'
 import OtpError from '../OtpError.mjs'
 import {
   HOTP_NOT_INITIALIZED_ERROR,
-
+  INVALID_REGEN_REF_ID_ERROR,
   OTP_REGEN_ON_HALT_ERROR,
   OTP_GEN_EXCEEDED_ERROR,
   OTP_REGEN_EXCEEDED_ERROR,
   OTP_VAL_EXCEEDED_ERROR,
   OTP_EXPIRED_ERROR
-} from '../constants/ERRORS.mjs'
+} from '../ERRORS.mjs'
 
 export default class Hotp extends Redis {
   #initialized = false
@@ -28,45 +28,45 @@ export default class Hotp extends Redis {
   }
 
   async generate (attrs = {}) {
-    const { Uids = [] } = attrs
+    const { uids = [] } = attrs
 
-    // Validate Generation and Get ReferenceId
-    const { ReferenceId, Regen = false } = await this.#shouldGenerate(attrs)
+    // Validate Generation and Get referenceId
+    const { referenceId, regen = false } = await this.#shouldGenerate(attrs)
 
     // Generate HOTP
-    const Otp = this.#generateHotp()
+    const otp = this.#generateHotp()
 
     // Manage Redis Keys
     const promises = [
-      this.cacheOtp(ReferenceId, Otp),
-      this.setRegenHalt(ReferenceId)
+      this.cacheOtp(referenceId, otp),
+      this.setRegenHalt(referenceId)
     ]
 
-    if (Regen) {
-      promises.push(this.setRegenCount(ReferenceId))
-      promises.push(this.setValidCount(ReferenceId))
-      promises.push(this.setGenFor(ReferenceId, Uids.toString()))
+    if (regen) {
+      promises.push(this.setRegenCount(referenceId))
+      promises.push(this.setValidCount(referenceId))
+      promises.push(this.setGenFor(referenceId, uids.toString()))
     }
 
     await Promise.allSettled(promises)
 
     // Return Generated Otp
-    return { ReferenceId, Otp, Regen }
+    return { referenceId, otp, regen }
   }
 
   async validate (attrs = {}) {
     // Validate Validation and Get Cached Otp
     const cachedOtp = await this.#shouldValidate(attrs)
 
-    const { ReferenceId, Otp } = attrs
-    const Valid = Otp === cachedOtp
+    const { referenceId, otp } = attrs
+    const valid = otp === cachedOtp
 
     // Handle Otp Validations After Sending Response
-    if (Valid) {
-      await this.clearKeys(ReferenceId)
+    if (valid) {
+      await this.clearKeys(referenceId)
     }
 
-    return { ReferenceId, Valid }
+    return { referenceId, valid }
   }
 
   async #shouldGenerate (attrs = {}) {
@@ -76,40 +76,40 @@ export default class Hotp extends Redis {
 
     const { OTP_CONFIG } = this
     const { OTP_GEN_LIMIT, OTP_REGEN_LIMIT } = OTP_CONFIG
-    const { ReferenceId, Uids } = attrs
+    const { referenceId, uids } = attrs
 
     // Validate Generate Count
-    for (const Uid of Uids) {
-      const generateCount = await this.incGenCount(Uid)
+    for (const uid of uids) {
+      const generateCount = await this.incGenCount(uid)
       if (generateCount > OTP_GEN_LIMIT) {
         throw new OtpError(attrs, OTP_GEN_EXCEEDED_ERROR)
       }
     }
 
-    // Generate New ReferenceId If Not Provide or Not Cached
-    if (!ReferenceId) {
-      return { ReferenceId: crypto.randomUUID() }
+    // Generate New referenceId If Not Provide or Not Cached
+    if (!referenceId) {
+      return { referenceId: crypto.randomUUID() }
     }
 
-    const doesCacheExists = await this.doesCacheExists(ReferenceId)
+    const doesCacheExists = await this.doesCacheExists(referenceId)
     if (!doesCacheExists) {
-      return { ReferenceId }
+      throw new OtpError(attrs, INVALID_REGEN_REF_ID_ERROR)
     }
 
     // Validate ReGenerate Halt
-    const shouldHalt = await this.getRegenHalt(ReferenceId)
+    const shouldHalt = await this.getRegenHalt(referenceId)
     if (shouldHalt) {
       throw new OtpError(attrs, OTP_REGEN_ON_HALT_ERROR)
     }
 
     // Validate ReGenerate Count
-    const generateCount = await this.incRegenCount(ReferenceId)
+    const generateCount = await this.incRegenCount(referenceId)
     if (generateCount > OTP_REGEN_LIMIT) {
       throw new OtpError(attrs, OTP_REGEN_EXCEEDED_ERROR)
     }
 
     // Return RefereceId
-    return { ReferenceId, Regen: true }
+    return { referenceId, regen: true }
   }
 
   #generateHotp () {
@@ -130,9 +130,9 @@ export default class Hotp extends Redis {
 
     // Build Otp from Digest Substring
     const decimal = parseInt(substring, 16)
-    const Otp = _.padStart((decimal % Math.pow(10, OTP_LENGTH)).toString(), OTP_LENGTH)
+    const otp = _.padStart((decimal % Math.pow(10, OTP_LENGTH)).toString(), OTP_LENGTH)
 
-    return Otp
+    return otp
   }
 
   async #shouldValidate (attrs = {}) {
@@ -142,16 +142,16 @@ export default class Hotp extends Redis {
 
     const { OTP_CONFIG } = this
     const { OTP_VAL_LIMIT } = OTP_CONFIG
-    const { ReferenceId } = attrs
+    const { referenceId } = attrs
 
     // Validate Validation Count
-    const validationCount = await this.incValidCount(ReferenceId)
+    const validationCount = await this.incValidCount(referenceId)
     if (validationCount > OTP_VAL_LIMIT) {
       throw new OtpError(attrs, OTP_VAL_EXCEEDED_ERROR)
     }
 
     // Get Cached Otp
-    const cachedOtp = await this.getCachedOtp(ReferenceId)
+    const cachedOtp = await this.getCachedOtp(referenceId)
     if (!cachedOtp) {
       throw new OtpError(attrs, OTP_EXPIRED_ERROR)
     }
