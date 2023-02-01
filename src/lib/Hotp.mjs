@@ -130,7 +130,7 @@ export default class Hotp extends Redis {
 
     // Build Otp from Digest Substring
     const decimal = parseInt(substring, 16)
-    const otp = _.padStart((decimal % Math.pow(10, OTP_LENGTH)).toString(), OTP_LENGTH)
+    const otp = _.padStart((decimal % Math.pow(10, OTP_LENGTH)).toString(), OTP_LENGTH, '0')
 
     return otp
   }
