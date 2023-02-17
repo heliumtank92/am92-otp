@@ -30,7 +30,7 @@
     ".": "./src/OtpSdk.mjs"
   },
   "dependencies": {
-    "@am92/redis": "^1.0.10",
+    "@am92/redis": "^1.0.11",
     "lodash": "^4.17.21"
   },
   "keywords": [
