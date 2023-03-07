@@ -3,8 +3,8 @@
   "version": "1.0.21",
   "description": "HOTP Authentication Module",
   "type": "module",
-  "main": "index.mjs",
-  "module": "index.mjs",
+  "main": "./index.mjs",
+  "module": "./index.mjs",
   "scripts": {
     "test": "echo 'Error: no test specified'",
     "preversion": "pnpm test",
@@ -30,7 +30,7 @@
     ".": "./index.mjs"
   },
   "dependencies": {
-    "@am92/redis": "^1.0.14",
+    "@am92/redis": "^1.0.15",
     "lodash": "^4.17.21"
   },
   "keywords": [
