@@ -20,7 +20,7 @@ export default class OtpSdk {
   async initialize () {
     console.info(`[${SERVICE} OtpSdk] Initialising...`)
     await this.#Hotp.initialize()
-    const logFunc = console.success || console.info
-    logFunc(`[${SERVICE} OtpSdk] Initialised`)
+    const successLogFunc = console.success || console.info
+    successLogFunc(`[${SERVICE} OtpSdk] Initialised`)
   }
 }
