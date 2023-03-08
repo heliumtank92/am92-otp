@@ -13,7 +13,7 @@
   "module": "./src/index.mjs",
   "main": "./src/index.mjs",
   "dependencies": {
-    "@am92/redis": "^1.0.15",
+    "@am92/redis": "^1.1.0",
     "lodash": "^4.17.21"
   },
   "scripts": {
