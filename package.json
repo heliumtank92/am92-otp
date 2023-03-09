@@ -1,15 +1,28 @@
 {
   "name": "@am92/otp",
-  "version": "1.0.17",
+  "version": "1.1.1",
   "description": "HOTP Authentication Module",
   "type": "module",
-  "main": "src/OtpSdk.mjs",
-  "module": "src/OtpSdk.mjs",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/index.mjs"
+    }
+  },
+  "types": "./types/index.d.mts",
+  "module": "./src/index.mjs",
+  "main": "./src/index.mjs",
+  "dependencies": {
+    "@am92/redis": "^1.1.0",
+    "lodash": "^4.17.21"
+  },
   "scripts": {
     "test": "echo 'Error: no test specified'",
+    "generate:types": "rm -rf types && npx -p typescript tsc",
     "preversion": "pnpm test",
     "version": "echo 'Versioning'",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags && npm run publish:pkg",
+    "publish:pkg": "npm publish"
   },
   "repository": "git@github.com:heliumtank92/am92-otp.git",
   "homepage": "https://github.com/heliumtank92/am92-otp#readme",
@@ -26,12 +39,8 @@
     }
   ],
   "license": "MIT",
-  "exports": {
-    ".": "./src/OtpSdk.mjs"
-  },
-  "dependencies": {
-    "@am92/redis": "^1.0.10",
-    "lodash": "^4.17.21"
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "otp",

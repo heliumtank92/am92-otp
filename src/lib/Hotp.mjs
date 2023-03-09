@@ -2,15 +2,7 @@ import crypto from 'crypto'
 import _ from 'lodash'
 import Redis from './Redis.mjs'
 import OtpError from '../OtpError.mjs'
-import {
-  HOTP_NOT_INITIALIZED_ERROR,
-  INVALID_REGEN_REF_ID_ERROR,
-  OTP_REGEN_ON_HALT_ERROR,
-  OTP_GEN_EXCEEDED_ERROR,
-  OTP_REGEN_EXCEEDED_ERROR,
-  OTP_VAL_EXCEEDED_ERROR,
-  OTP_EXPIRED_ERROR
-} from '../ERRORS.mjs'
+import ERRORS from '../ERRORS.mjs'
 
 export default class Hotp extends Redis {
   #initialized = false
@@ -39,13 +31,13 @@ export default class Hotp extends Redis {
     // Manage Redis Keys
     const promises = [
       this.cacheOtp(referenceId, otp),
-      this.setRegenHalt(referenceId)
+      this.setRegenHalt(referenceId),
+      this.setGenFor(referenceId, uids.toString()),
+      this.setValidCount(referenceId)
     ]
 
     if (regen) {
       promises.push(this.setRegenCount(referenceId))
-      promises.push(this.setValidCount(referenceId))
-      promises.push(this.setGenFor(referenceId, uids.toString()))
     }
 
     await Promise.allSettled(promises)
@@ -71,7 +63,7 @@ export default class Hotp extends Redis {
 
   async #shouldGenerate (attrs = {}) {
     if (!this.#initialized) {
-      throw new OtpError(attrs, HOTP_NOT_INITIALIZED_ERROR)
+      throw new OtpError(attrs, ERRORS.HOTP_NOT_INITIALIZED_ERROR)
     }
 
     const { OTP_CONFIG } = this
@@ -82,7 +74,7 @@ export default class Hotp extends Redis {
     for (const uid of uids) {
       const generateCount = await this.incGenCount(uid)
       if (generateCount > OTP_GEN_LIMIT) {
-        throw new OtpError(attrs, OTP_GEN_EXCEEDED_ERROR)
+        throw new OtpError(attrs, ERRORS.OTP_GEN_EXCEEDED_ERROR)
       }
     }
 
@@ -93,19 +85,19 @@ export default class Hotp extends Redis {
 
     const doesCacheExists = await this.doesCacheExists(referenceId)
     if (!doesCacheExists) {
-      throw new OtpError(attrs, INVALID_REGEN_REF_ID_ERROR)
+      throw new OtpError(attrs, ERRORS.INVALID_REGEN_REF_ID_ERROR)
     }
 
-    // Validate ReGenerate Halt
+    // Validate Regenerate Halt
     const shouldHalt = await this.getRegenHalt(referenceId)
     if (shouldHalt) {
-      throw new OtpError(attrs, OTP_REGEN_ON_HALT_ERROR)
+      throw new OtpError(attrs, ERRORS.OTP_REGEN_ON_HALT_ERROR)
     }
 
-    // Validate ReGenerate Count
+    // Validate Regenerate Count
     const generateCount = await this.incRegenCount(referenceId)
     if (generateCount > OTP_REGEN_LIMIT) {
-      throw new OtpError(attrs, OTP_REGEN_EXCEEDED_ERROR)
+      throw new OtpError(attrs, ERRORS.OTP_REGEN_EXCEEDED_ERROR)
     }
 
     // Return RefereceId
@@ -137,7 +129,7 @@ export default class Hotp extends Redis {
 
   async #shouldValidate (attrs = {}) {
     if (!this.#initialized) {
-      throw new OtpError(attrs, HOTP_NOT_INITIALIZED_ERROR)
+      throw new OtpError(attrs, ERRORS.HOTP_NOT_INITIALIZED_ERROR)
     }
 
     const { OTP_CONFIG } = this
@@ -147,13 +139,18 @@ export default class Hotp extends Redis {
     // Validate Validation Count
     const validationCount = await this.incValidCount(referenceId)
     if (validationCount > OTP_VAL_LIMIT) {
-      throw new OtpError(attrs, OTP_VAL_EXCEEDED_ERROR)
+      throw new OtpError(attrs, ERRORS.OTP_VAL_EXCEEDED_ERROR)
     }
 
     // Get Cached Otp
     const cachedOtp = await this.getCachedOtp(referenceId)
+    const genFor = await this.getGenFor(referenceId)
     if (!cachedOtp) {
-      throw new OtpError(attrs, OTP_EXPIRED_ERROR)
+      if (genFor) {
+        throw new OtpError(attrs, ERRORS.OTP_EXPIRED_ERROR)
+      } else {
+        throw new OtpError(attrs, ERRORS.INVALID_REF_ID_ERROR)
+      }
     }
 
     // Return Cached Otp
