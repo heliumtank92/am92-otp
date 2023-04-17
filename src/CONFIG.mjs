@@ -61,8 +61,10 @@ if (DEDICATED_REDIS) {
   }
 
   REDIS_CONNECTION_CONFIG = {
-    host: OTP_REDIS_HOST,
-    port: OTP_REDIS_PORT
+    socket: {
+      host: OTP_REDIS_HOST,
+      port: OTP_REDIS_PORT
+    }
   }
 
   if (AUTH_ENABLED) {
