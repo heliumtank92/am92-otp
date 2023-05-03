@@ -4,7 +4,6 @@ const {
 
   OTP_DEDICATED_REDIS = 'false',
   OTP_REDIS_AUTH_ENABLED = 'false',
-  OTP_REDIS_CHECK_SERVER_IDENTITY = 'false',
   OTP_REDIS_HOST = '',
   OTP_REDIS_PORT = '',
   OTP_REDIS_KEY_PREFIX = '',
@@ -42,7 +41,6 @@ if (DEDICATED_REDIS) {
   REQUIRED_CONFIG.push('OTP_REDIS_PORT')
 
   const AUTH_ENABLED = OTP_REDIS_AUTH_ENABLED === 'true'
-  const CHECK_SERVER_IDENTITY = OTP_REDIS_CHECK_SERVER_IDENTITY === 'true'
 
   if (AUTH_ENABLED) {
     REQUIRED_CONFIG.push('OTP_REDIS_AUTH')
@@ -68,11 +66,8 @@ if (DEDICATED_REDIS) {
   }
 
   if (AUTH_ENABLED) {
+    REDIS_CONNECTION_CONFIG.socket.tls = true
     REDIS_CONNECTION_CONFIG.password = OTP_REDIS_AUTH
-  }
-
-  if (CHECK_SERVER_IDENTITY) {
-    REDIS_CONNECTION_CONFIG.tls = { checkServerIdentity: () => undefined }
   }
 } else {
   console.warn(`[${SERVICE} Otp] Otp Config OTP_DEDICATED_REDIS set to false. Ensure REDIS_ENABLED is set to true`)
