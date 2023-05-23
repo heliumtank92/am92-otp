@@ -32,12 +32,12 @@ export default class Hotp extends Redis {
     const promises = [
       this.cacheOtp(referenceId, otp),
       this.setRegenHalt(referenceId),
-      this.setGenFor(referenceId, uids.toString()),
       this.setValidCount(referenceId)
     ]
 
-    if (regen) {
+    if (!regen) {
       promises.push(this.setRegenCount(referenceId))
+      promises.push(this.setGenFor(referenceId, uids.toString()))
     }
 
     await Promise.allSettled(promises)
@@ -68,18 +68,18 @@ export default class Hotp extends Redis {
 
     const { OTP_CONFIG } = this
     const { OTP_GEN_LIMIT, OTP_REGEN_LIMIT } = OTP_CONFIG
-    const { referenceId, uids } = attrs
-
-    // Validate Generate Count
-    for (const uid of uids) {
-      const generateCount = await this.incGenCount(uid)
-      if (generateCount > OTP_GEN_LIMIT) {
-        throw new OtpError(attrs, ERRORS.OTP_GEN_EXCEEDED_ERROR)
-      }
-    }
+    const { referenceId, uids = [] } = attrs
 
     // Generate New referenceId If Not Provide or Not Cached
     if (!referenceId) {
+      // Validate Generate Count
+      for (const uid of uids) {
+        const generateCount = await this.incGenCount(uid)
+        if (generateCount > OTP_GEN_LIMIT) {
+          throw new OtpError(attrs, ERRORS.OTP_GEN_EXCEEDED_ERROR)
+        }
+      }
+
       return { referenceId: crypto.randomUUID() }
     }
 
@@ -95,8 +95,8 @@ export default class Hotp extends Redis {
     }
 
     // Validate Regenerate Count
-    const generateCount = await this.incRegenCount(referenceId)
-    if (generateCount > OTP_REGEN_LIMIT) {
+    const regenerateCount = await this.incRegenCount(referenceId)
+    if (regenerateCount > OTP_REGEN_LIMIT) {
       throw new OtpError(attrs, ERRORS.OTP_REGEN_EXCEEDED_ERROR)
     }
 

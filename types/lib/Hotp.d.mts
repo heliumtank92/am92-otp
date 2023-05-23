@@ -10,4 +10,4 @@ export default class Hotp extends Redis {
     }>;
     #private;
 }
-import Redis from "./Redis.mjs";
+import Redis from './Redis.mjs';
