@@ -20,4 +20,4 @@ export default class Redis {
     incValidCount(referenceId?: string): Promise<number>;
     clearKeys(referenceId?: string): Promise<void[]>;
 }
-import RedisSdk from "@am92/redis";
+import RedisSdk from '@am92/redis';

@@ -1,6 +1,6 @@
 {
   "name": "@am92/otp",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "HOTP Authentication Module",
   "type": "module",
   "exports": {
