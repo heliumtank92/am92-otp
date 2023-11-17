@@ -11,6 +11,8 @@
 
 ## Table of Content
 - [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Creating an OtpSdk Instance](#creating-an-otpsdk-instance)
 - [Contributors](#contributors)
 - [Resources](#resources)
 - [License](#license)
@@ -21,6 +23,75 @@
 ```bash
 $ npm install --save @am92/otp
 ```
+<br />
+
+## Environment Variables
+The following environment variables need to be set to work with this package:
+```sh
+##### Redis Config
+export OTP_LENGTH='6'
+export OTP_EXPIRY_IN_SECS='300'
+export OTP_GEN_HALT_IN_SECS='30'
+export OTP_GEN_LIMIT='5'
+export OTP_GEN_LIMIT_EXPIRY_IN_SEC='1800'
+export OTP_REGEN_LIMIT='3'
+export OTP_VAL_LIMIT='3'
+#
+export OTP_DEDICATED_REDIS='false'
+export OTP_REDIS_AUTH_ENABLED='false'
+export OTP_REDIS_HOST=''
+export OTP_REDIS_PORT='6379'
+export OTP_REDIS_KEY_PREFIX=''
+export OTP_REDIS_AUTH=''
+```
+
+*Note:*
+* *If 'OTP_DEDICATED_REDIS' is set to 'true', 'OTP_REDIS_HOST' and 'OTP_REDIS_PORT' are required*
+* *If 'OTP_DEDICATED_REDIS' and 'REDIS_AUTH_ENABLED' are set to 'true', 'OTP_REDIS_AUTH' is also required*
+* *Variables where values have been defined can be omitted from being defined as the mentioned values are internally defaulted.*
+
+<br />
+
+## Creating an OtpSdk Instance
+```javascript
+import OtpSdk from '@am92/otp'
+
+const otpSdk = new OtpSdk()
+export default otpSdk
+```
+
+If you wish to pass your custom 'config' to OtpSdk Class, then you can build it as follows:
+
+```javascript
+import OtpSdk from '@am92/otp'
+
+const config = {
+  OTP_CONFIG: {
+    OTP_LENGTH: 6,
+    OTP_EXPIRY_IN_SECS: 300,
+    OTP_GEN_HALT_IN_SECS: 30,
+    OTP_GEN_LIMIT: 5,
+    OTP_GEN_LIMIT_EXPIRY_IN_SEC: 1800,
+    OTP_REGEN_LIMIT: 3,
+    OTP_VAL_LIMIT: 3,
+  },
+  REDIS_CONFIG: {
+    CONNECTION_CONFIG: {
+      socket: {
+        host: 'localhost',
+        port: 6379,
+        tls: true
+      },
+      password: 'password'
+    },
+    KEY_PREFIX: 'test'
+  }
+}
+
+const otpSdk = new OtpSdk(config)
+export default otpSdk
+```
+
 <br />
 
 ## Contributors
@@ -48,8 +119,7 @@ $ npm install --save @am92/otp
 <br />
 
 ## Resources
-* [Pug](https://www.npmjs.com/package/pug)
-* [Camaro](https://www.npmjs.com/package/camaro)
+* [RedisSdk](https://www.npmjs.com/package/@am92/redis)
 
 <br />
 
