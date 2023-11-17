@@ -1,8 +1,15 @@
-import RedisSdk from '@am92/redis'
+import RedisSdk, { RedisSdkConfig } from '@am92/redis'
+import { OtpConfig } from './TYPES'
 
+/** @internal */
 export default class Redis {
-  constructor (REDIS_CONFIG, OTP_CONFIG) {
+  redisSdk: RedisSdk
+  REDIS_CONFIG: RedisSdkConfig
+  OTP_CONFIG: OtpConfig
+
+  constructor(REDIS_CONFIG: RedisSdkConfig, OTP_CONFIG: OtpConfig) {
     this.redisSdk = new RedisSdk(REDIS_CONFIG)
+    this.REDIS_CONFIG = this.redisSdk.CONFIG
     this.OTP_CONFIG = OTP_CONFIG
 
     this.initialize = this.initialize.bind(this)
@@ -24,112 +31,116 @@ export default class Redis {
     this.clearKeys = this.clearKeys.bind(this)
   }
 
-  async initialize () {
+  async initialize(): Promise<void> {
     await this.redisSdk.connect()
   }
 
-  async cacheOtp (referenceId = '', otp = '') {
+  async cacheOtp(referenceId = '', otp = ''): Promise<string | null> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_EXPIRY_IN_SECS } = OTP_CONFIG
     const redisKey = `OTP_${referenceId}_OTP`
     return redisSdk.setAndExpire(redisKey, otp, OTP_EXPIRY_IN_SECS)
   }
 
-  async getCachedOtp (referenceId = '') {
+  async getCachedOtp(referenceId = ''): Promise<string | null> {
     const { redisSdk } = this
     const redisKey = `OTP_${referenceId}_OTP`
     return redisSdk.get(redisKey)
   }
 
-  async doesCacheExists (referenceId = '') {
+  async doesCacheExists(referenceId = ''): Promise<number> {
     const { redisSdk } = this
     const redisKey = `OTP_${referenceId}_OTP`
-    return redisSdk.exists(redisKey)
+    return redisSdk.exists([redisKey])
   }
 
-  async setRegenHalt (referenceId = '') {
+  async setRegenHalt(referenceId = ''): Promise<string | null> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_GEN_HALT_IN_SECS } = OTP_CONFIG
     const redisKey = `OTP_${referenceId}_REGEN_HALT`
-    return redisSdk.setAndExpire(redisKey, 1, OTP_GEN_HALT_IN_SECS)
+    return redisSdk.setAndExpire(redisKey, '1', OTP_GEN_HALT_IN_SECS)
   }
 
-  async getRegenHalt (referenceId = '') {
+  async getRegenHalt(referenceId = ''): Promise<string | null> {
     const { redisSdk } = this
     const redisKey = `OTP_${referenceId}_REGEN_HALT`
     return redisSdk.get(redisKey)
   }
 
-  async setRegenCount (referenceId = '') {
+  async setRegenCount(referenceId = ''): Promise<string | null> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_EXPIRY_IN_SECS } = OTP_CONFIG
     const redisKey = `OTP_${referenceId}_REGEN_CT`
-    return redisSdk.setAndExpire(redisKey, 0, OTP_EXPIRY_IN_SECS)
+    return redisSdk.setAndExpire(redisKey, '0', OTP_EXPIRY_IN_SECS)
   }
 
-  async incRegenCount (referenceId = '') {
+  async incRegenCount(referenceId = ''): Promise<number> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_EXPIRY_IN_SECS } = OTP_CONFIG
     const redisKey = `OTP_${referenceId}_REGEN_CT`
     return redisSdk.incrByAndExpire(redisKey, 1, OTP_EXPIRY_IN_SECS)
   }
 
-  async doesGenCountExists (uid = '') {
+  async doesGenCountExists(uid = ''): Promise<number> {
     const { redisSdk } = this
     const redisKey = `OTP_${uid}_GEN_CT`
-    return redisSdk.exists(redisKey)
+    return redisSdk.exists([redisKey])
   }
 
-  async getGenCount (uid = '') {
+  async getGenCount(uid = ''): Promise<string | null> {
     const { redisSdk } = this
     const redisKey = `OTP_${uid}_GEN_CT`
     return redisSdk.get(redisKey)
   }
 
-  async setGenCount (uid = '') {
-    const { OTP_CONFIG, redisSdk } = this
-    const { OTP_GEN_LIMIT_EXPIRY_IN_SEC } = OTP_CONFIG
-    const redisKey = `OTP_${uid}_GEN_CT`
-    return redisSdk.setAndExpire(redisKey, 1, OTP_GEN_LIMIT_EXPIRY_IN_SEC)
-  }
-
-  async incGenCount (uid = '') {
+  async setGenCount(uid = ''): Promise<number> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_GEN_LIMIT_EXPIRY_IN_SEC } = OTP_CONFIG
     const redisKey = `OTP_${uid}_GEN_CT`
     return redisSdk.incrByAndExpire(redisKey, 1, OTP_GEN_LIMIT_EXPIRY_IN_SEC)
   }
 
-  async getGenFor (referenceId = '') {
+  async incGenCount(uid = ''): Promise<number> {
+    const { OTP_CONFIG, redisSdk } = this
+    const { OTP_GEN_LIMIT_EXPIRY_IN_SEC } = OTP_CONFIG
+    const redisKey = `OTP_${uid}_GEN_CT`
+    return redisSdk.incrByAndExpire(redisKey, 1, OTP_GEN_LIMIT_EXPIRY_IN_SEC)
+  }
+
+  async getGenFor(referenceId = ''): Promise<string | null> {
     const { redisSdk } = this
     const redisKey = `OTP_${referenceId}_GEN_FOR`
     return redisSdk.get(redisKey)
   }
 
-  async setGenFor (referenceId = '', uidString = '') {
+  async setGenFor(referenceId = '', uidString = ''): Promise<string | null> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_GEN_LIMIT_EXPIRY_IN_SEC } = OTP_CONFIG
     const redisKey = `OTP_${referenceId}_GEN_FOR`
-    return redisSdk.setAndExpire(redisKey, uidString, OTP_GEN_LIMIT_EXPIRY_IN_SEC)
+    return redisSdk.setAndExpire(
+      redisKey,
+      uidString,
+      OTP_GEN_LIMIT_EXPIRY_IN_SEC
+    )
   }
 
-  async setValidCount (referenceId = '') {
+  async setValidCount(referenceId = ''): Promise<string | null> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_EXPIRY_IN_SECS } = OTP_CONFIG
     const redisKey = `OTP_${referenceId}_VAL_CT`
-    return redisSdk.setAndExpire(redisKey, 0, OTP_EXPIRY_IN_SECS)
+    return redisSdk.setAndExpire(redisKey, '0', OTP_EXPIRY_IN_SECS)
   }
 
-  async incValidCount (referenceId = '') {
+  async incValidCount(referenceId = ''): Promise<number> {
     const { OTP_CONFIG, redisSdk } = this
     const { OTP_EXPIRY_IN_SECS } = OTP_CONFIG
     const redisKey = `OTP_${referenceId}_VAL_CT`
     return redisSdk.incrByAndExpire(redisKey, 1, OTP_EXPIRY_IN_SECS)
   }
 
-  async clearKeys (referenceId = '') {
+  async clearKeys(referenceId = ''): Promise<number> {
     const { redisSdk } = this
-    const uidsString = await this.getGenFor(referenceId) || ''
+    const uidsString = (await this.getGenFor(referenceId)) || ''
     const uids = uidsString.split(',')
     for (const uid of uids) {
       const redisKey = `OTP_${uid}_*`
