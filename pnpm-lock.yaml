@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@am92/redis':
-    specifier: ^2.0.1
-    version: 2.0.1
+    specifier: ^2.0.2
+    version: 2.0.2
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -38,8 +38,8 @@ packages:
     resolution: {integrity: sha512-KI2nVf9JdwWCXqK6RVf+9/096G7VWN4Z84mnynlyZKao2xQENW8WNEjLmvdlxS5X8PNWXFC1zqwm7tveOXw/4A==}
     dev: true
 
-  /@am92/redis@2.0.1:
-    resolution: {integrity: sha512-r7QqOP8q+rCNsI0nDcP1FKk1DpKPhcD5sqXtYKnBXGC4jacMtryo1BL6s8dajnsivbkW4s9HJlEgp4XX0VIYZw==}
+  /@am92/redis@2.0.2:
+    resolution: {integrity: sha512-j6+zzdgdWttZYDw0uvet0R/Gkj2tRoZHeW02us7GWxDj9iFzVXd+WtXD+TezLAocZ7ncO9cYStxDV8S67hIMSw==}
     dependencies:
       redis: 4.6.10
     dev: false

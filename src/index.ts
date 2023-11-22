@@ -1,5 +1,3 @@
-import OtpSdk from './OtpSdk'
-
-export * from './TYPES'
+export * from './OtpSdk'
 export * from './OtpError'
-export default OtpSdk
+export * from './TYPES'

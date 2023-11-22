@@ -29,7 +29,7 @@ import { OtpShouldGenerateData } from './TYPES_INTERNAL'
  *
  * @class
  */
-export default class OtpSdk {
+export class OtpSdk {
   /** @private */
   #initialized = false
 
