@@ -25,7 +25,7 @@
   "repository": "git@github.com:heliumtank92/am92-otp.git",
   "homepage": "https://heliumtank92.github.io/am92-otp",
   "dependencies": {
-    "@am92/redis": "^2.0.1",
+    "@am92/redis": "^2.0.2",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

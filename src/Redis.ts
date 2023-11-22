@@ -1,4 +1,4 @@
-import RedisSdk, { RedisSdkConfig } from '@am92/redis'
+import { RedisSdk, RedisSdkConfig } from '@am92/redis'
 import { OtpConfig } from './TYPES'
 
 /** @internal */
